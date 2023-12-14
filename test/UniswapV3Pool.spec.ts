@@ -1202,7 +1202,7 @@ describe('UniswapV3Pool', () => {
 
         await expect(pool.collectProtocol(other.address, MaxUint128, MaxUint128))
           .to.emit(token0, 'Transfer')
-          .withArgs(pool.address, other.address, '83333333333332')
+          .withArgs(pool.address, await factory.owner(), '83333333333332') // wallet-splitter
       })
 
       it('fees collected can differ between token0 and token1', async () => {
@@ -1222,10 +1222,10 @@ describe('UniswapV3Pool', () => {
         await expect(pool.collectProtocol(other.address, MaxUint128, MaxUint128))
           .to.emit(token0, 'Transfer')
           // more token0 fees because it's 1/5th the swap fees
-          .withArgs(pool.address, other.address, '62499999999999')
+          .withArgs(pool.address, await factory.owner(), '62499999999999')
           .to.emit(token1, 'Transfer')
           // less token1 fees because it's 1/8th the swap fees
-          .withArgs(pool.address, other.address, '99999999999998')
+          .withArgs(pool.address, await factory.owner(), '99999999999998')
       })
     })
 
