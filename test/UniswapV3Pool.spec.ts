@@ -491,19 +491,19 @@ describe('UniswapV3Pool', () => {
         expect(token1ProtocolFees).to.eq('5000000000000')
       })
 
-      it('positions are protected before protocol fee is turned on', async () => {
+      it('positions when protocol fee is turned on', async () => {
         await mint(wallet.address, minTick + tickSpacing, maxTick - tickSpacing, expandTo18Decimals(1))
         await swapExact0For1(expandTo18Decimals(1).div(10), wallet.address)
         await swapExact1For0(expandTo18Decimals(1).div(100), wallet.address)
 
         let { token0: token0ProtocolFees, token1: token1ProtocolFees } = await pool.protocolFees()
-        expect(token0ProtocolFees).to.eq(0)
-        expect(token1ProtocolFees).to.eq(0)
+        expect(token0ProtocolFees).to.eq('75000000000000')
+        expect(token1ProtocolFees).to.eq('7500000000000')
 
         await pool.setFeeProtocol(6, 6)
         ;({ token0: token0ProtocolFees, token1: token1ProtocolFees } = await pool.protocolFees())
-        expect(token0ProtocolFees).to.eq(0)
-        expect(token1ProtocolFees).to.eq(0)
+        expect(token0ProtocolFees).to.eq('75000000000000')
+        expect(token1ProtocolFees).to.eq('7500000000000')
       })
 
       it('poke is not allowed on uninitialized position', async () => {
@@ -523,8 +523,8 @@ describe('UniswapV3Pool', () => {
           tokensOwed0,
         } = await pool.positions(getPositionKey(wallet.address, minTick + tickSpacing, maxTick - tickSpacing))
         expect(liquidity).to.eq(1)
-        expect(feeGrowthInside0LastX128).to.eq('102084710076281216349243831104605583')
-        expect(feeGrowthInside1LastX128).to.eq('10208471007628121634924383110460558')
+        expect(feeGrowthInside0LastX128).to.eq('76563532557210912261932873328454187')
+        expect(feeGrowthInside1LastX128).to.eq('7656353255721091226193287332845418')
         expect(tokensOwed0, 'tokens owed 0 before').to.eq(0)
         expect(tokensOwed1, 'tokens owed 1 before').to.eq(0)
 
@@ -537,8 +537,8 @@ describe('UniswapV3Pool', () => {
           tokensOwed0,
         } = await pool.positions(getPositionKey(wallet.address, minTick + tickSpacing, maxTick - tickSpacing)))
         expect(liquidity).to.eq(0)
-        expect(feeGrowthInside0LastX128).to.eq('102084710076281216349243831104605583')
-        expect(feeGrowthInside1LastX128).to.eq('10208471007628121634924383110460558')
+        expect(feeGrowthInside0LastX128).to.eq('76563532557210912261932873328454187')
+        expect(feeGrowthInside1LastX128).to.eq('7656353255721091226193287332845418')
         expect(tokensOwed0, 'tokens owed 0 after').to.eq(3)
         expect(tokensOwed1, 'tokens owed 1 after').to.eq(0)
       })
@@ -578,8 +578,8 @@ describe('UniswapV3Pool', () => {
       expect(liquidity).to.eq(0)
       expect(tokensOwed0).to.not.eq(0)
       expect(tokensOwed1).to.not.eq(0)
-      expect(feeGrowthInside0LastX128).to.eq('340282366920938463463374607431768211')
-      expect(feeGrowthInside1LastX128).to.eq('340282366920938576890830247744589365')
+      expect(feeGrowthInside0LastX128).to.eq('255211775190703847597530955573826158')
+      expect(feeGrowthInside1LastX128).to.eq('255211775190703961024986595886647312')
     })
 
     it('clears the tick if its the last position using it', async () => {
@@ -876,7 +876,7 @@ describe('UniswapV3Pool', () => {
         .to.not.emit(token1, 'Transfer')
       await expect(pool.collect(wallet.address, 0, 120, MaxUint128, MaxUint128))
         .to.emit(token1, 'Transfer')
-        .withArgs(pool.address, wallet.address, BigNumber.from('6017734268818165').add('18107525382602')) // roughly 0.3% despite other liquidity
+        .withArgs(pool.address, wallet.address, BigNumber.from('6031314912855116')) // roughly 0.3% despite other liquidity
         .to.not.emit(token0, 'Transfer')
       expect((await pool.slot0()).tick).to.be.gte(120)
     })
@@ -893,7 +893,7 @@ describe('UniswapV3Pool', () => {
         .to.not.emit(token1, 'Transfer')
       await expect(pool.collect(wallet.address, -120, 0, MaxUint128, MaxUint128))
         .to.emit(token0, 'Transfer')
-        .withArgs(pool.address, wallet.address, BigNumber.from('6017734268818165').add('18107525382602')) // roughly 0.3% despite other liquidity
+        .withArgs(pool.address, wallet.address, BigNumber.from('6031314912855116')) // roughly 0.3% despite other liquidity
       expect((await pool.slot0()).tick).to.be.lt(-120)
     })
 
@@ -958,8 +958,8 @@ describe('UniswapV3Pool', () => {
         getPositionKey(wallet.address, minTick + tickSpacing, maxTick - tickSpacing)
       )
 
-      expect(tokensOwed0Position0).to.be.eq('166666666666667')
-      expect(tokensOwed0Position1).to.be.eq('333333333333334')
+      expect(tokensOwed0Position0).to.be.eq('125000000000000')
+      expect(tokensOwed0Position1).to.be.eq('250000000000001')
     })
 
     describe('works across large increases', () => {
@@ -1019,7 +1019,7 @@ describe('UniswapV3Pool', () => {
           MaxUint128,
           MaxUint128
         )
-        expect(amount0).to.be.eq('499999999999999')
+        expect(amount0).to.be.eq('374999999999999')
         expect(amount1).to.be.eq(0)
       })
       it('token1', async () => {
@@ -1033,7 +1033,7 @@ describe('UniswapV3Pool', () => {
           MaxUint128
         )
         expect(amount0).to.be.eq(0)
-        expect(amount1).to.be.eq('499999999999999')
+        expect(amount1).to.be.eq('374999999999999')
       })
       it('token0 and token1', async () => {
         await swapExact0For1(expandTo18Decimals(1), wallet.address)
@@ -1046,8 +1046,8 @@ describe('UniswapV3Pool', () => {
           MaxUint128,
           MaxUint128
         )
-        expect(amount0).to.be.eq('499999999999999')
-        expect(amount1).to.be.eq('500000000000000')
+        expect(amount0).to.be.eq('374999999999999')
+        expect(amount1).to.be.eq('375000000000000')
       })
     })
   })
@@ -1061,8 +1061,8 @@ describe('UniswapV3Pool', () => {
       await mint(wallet.address, minTick, maxTick, liquidityAmount)
     })
 
-    it('is initially set to 0', async () => {
-      expect((await pool.slot0()).feeProtocol).to.eq(0)
+    it('is initially set to 68', async () => {
+      expect((await pool.slot0()).feeProtocol).to.eq(68)
     })
 
     it('can be changed by the owner', async () => {
@@ -1114,7 +1114,7 @@ describe('UniswapV3Pool', () => {
       })
 
       // 6 bips * 1e18
-      expect(token0Fees).to.eq('499999999999999')
+      expect(token0Fees).to.eq('374999999999999')
       expect(token1Fees).to.eq(0)
     })
 
@@ -1126,21 +1126,21 @@ describe('UniswapV3Pool', () => {
         zeroForOne: true,
         poke: true,
       }))
-      expect(token0Fees).to.eq('499999999999999')
+      expect(token0Fees).to.eq('374999999999999')
       expect(token1Fees).to.eq(0)
       ;({ token0Fees, token1Fees } = await swapAndGetFeesOwed({
         amount: expandTo18Decimals(1),
         zeroForOne: true,
         poke: true,
       }))
-      expect(token0Fees).to.eq('999999999999998')
+      expect(token0Fees).to.eq('749999999999998')
       expect(token1Fees).to.eq(0)
       ;({ token0Fees, token1Fees } = await swapAndGetFeesOwed({
         amount: expandTo18Decimals(1),
         zeroForOne: true,
         poke: true,
       }))
-      expect(token0Fees).to.eq('1499999999999997')
+      expect(token0Fees).to.eq('1124999999999997')
       expect(token1Fees).to.eq(0)
     })
 
@@ -1153,21 +1153,21 @@ describe('UniswapV3Pool', () => {
         poke: true,
       }))
       expect(token0Fees).to.eq(0)
-      expect(token1Fees).to.eq('499999999999999')
+      expect(token1Fees).to.eq('374999999999999')
       ;({ token0Fees, token1Fees } = await swapAndGetFeesOwed({
         amount: expandTo18Decimals(1),
         zeroForOne: false,
         poke: true,
       }))
       expect(token0Fees).to.eq(0)
-      expect(token1Fees).to.eq('999999999999998')
+      expect(token1Fees).to.eq('749999999999998')
       ;({ token0Fees, token1Fees } = await swapAndGetFeesOwed({
         amount: expandTo18Decimals(1),
         zeroForOne: false,
         poke: true,
       }))
       expect(token0Fees).to.eq(0)
-      expect(token1Fees).to.eq('1499999999999997')
+      expect(token1Fees).to.eq('1124999999999997')
     })
 
     it('position owner gets partial fees when protocol fee is on', async () => {
@@ -1242,7 +1242,7 @@ describe('UniswapV3Pool', () => {
       })
 
       // 6 bips * 2e18
-      expect(token0Fees).to.eq('999999999999998')
+      expect(token0Fees).to.eq('749999999999998')
       expect(token1Fees).to.eq(0)
     })
 
@@ -1261,7 +1261,7 @@ describe('UniswapV3Pool', () => {
         poke: true,
       })
 
-      expect(token0Fees).to.eq('916666666666666')
+      expect(token0Fees).to.eq('791666666666666')
       expect(token1Fees).to.eq(0)
     })
 
@@ -1462,12 +1462,8 @@ describe('UniswapV3Pool', () => {
         })
         it('increases the fee growth by the expected amount', async () => {
           await flash(1001, 2002, other.address)
-          expect(await pool.feeGrowthGlobal0X128()).to.eq(
-            BigNumber.from(4).mul(BigNumber.from(2).pow(128)).div(expandTo18Decimals(2))
-          )
-          expect(await pool.feeGrowthGlobal1X128()).to.eq(
-            BigNumber.from(7).mul(BigNumber.from(2).pow(128)).div(expandTo18Decimals(2))
-          )
+          expect(await pool.feeGrowthGlobal0X128()).to.eq('510423550381407695195')
+          expect(await pool.feeGrowthGlobal1X128()).to.eq('1020847100762815390390')
         })
         it('fails if original balance not returned in either token', async () => {
           await expect(flash(1000, 0, other.address, 999, 0)).to.be.reverted
@@ -1482,18 +1478,14 @@ describe('UniswapV3Pool', () => {
             .to.emit(token0, 'Transfer')
             .withArgs(wallet.address, pool.address, 567)
             .to.not.emit(token1, 'Transfer')
-          expect(await pool.feeGrowthGlobal0X128()).to.eq(
-            BigNumber.from(567).mul(BigNumber.from(2).pow(128)).div(expandTo18Decimals(2))
-          )
+          expect(await pool.feeGrowthGlobal0X128()).to.eq('72480144154159892717698')
         })
         it('allows donating token1', async () => {
           await expect(flash(0, 0, constants.AddressZero, 0, 678))
             .to.emit(token1, 'Transfer')
             .withArgs(wallet.address, pool.address, 678)
             .to.not.emit(token0, 'Transfer')
-          expect(await pool.feeGrowthGlobal1X128()).to.eq(
-            BigNumber.from(678).mul(BigNumber.from(2).pow(128)).div(expandTo18Decimals(2))
-          )
+          expect(await pool.feeGrowthGlobal1X128()).to.eq('86601862381378838951428')
         })
         it('allows donating token0 and token1 together', async () => {
           await expect(flash(0, 0, constants.AddressZero, 789, 1234))
@@ -1502,12 +1494,8 @@ describe('UniswapV3Pool', () => {
             .to.emit(token1, 'Transfer')
             .withArgs(wallet.address, pool.address, 1234)
 
-          expect(await pool.feeGrowthGlobal0X128()).to.eq(
-            BigNumber.from(789).mul(BigNumber.from(2).pow(128)).div(expandTo18Decimals(2))
-          )
-          expect(await pool.feeGrowthGlobal1X128()).to.eq(
-            BigNumber.from(1234).mul(BigNumber.from(2).pow(128)).div(expandTo18Decimals(2))
-          )
+          expect(await pool.feeGrowthGlobal0X128()).to.eq('100723580608597785185158')
+          expect(await pool.feeGrowthGlobal1X128()).to.eq('157550735884394508583542')
         })
       })
 
@@ -1558,9 +1546,7 @@ describe('UniswapV3Pool', () => {
           const { token1: token1ProtocolFees } = await pool.protocolFees()
           expect(token1ProtocolFees).to.eq(113)
 
-          expect(await pool.feeGrowthGlobal1X128()).to.eq(
-            BigNumber.from(565).mul(BigNumber.from(2).pow(128)).div(expandTo18Decimals(2))
-          )
+          expect(await pool.feeGrowthGlobal1X128()).to.eq('96129768655165115928403')
         })
         it('allows donating token0 and token1 together', async () => {
           await expect(flash(0, 0, constants.AddressZero, 789, 1234))
@@ -1661,7 +1647,7 @@ describe('UniswapV3Pool', () => {
       expect((await pool.slot0()).feeProtocol).to.eq(0)
     })
     it('emits an event when turned on', async () => {
-      await expect(pool.setFeeProtocol(7, 7)).to.be.emit(pool, 'SetFeeProtocol').withArgs(0, 0, 7, 7)
+      await expect(pool.setFeeProtocol(7, 7)).to.be.emit(pool, 'SetFeeProtocol').withArgs(4, 4, 7, 7)
     })
     it('emits an event when turned off', async () => {
       await pool.setFeeProtocol(7, 5)
@@ -1868,8 +1854,8 @@ describe('UniswapV3Pool', () => {
         pool.feeGrowthGlobal1X128(),
       ])
       // all 1s in first 128 bits
-      expect(feeGrowthGlobal0X128).to.eq(MaxUint128.shl(128))
-      expect(feeGrowthGlobal1X128).to.eq(MaxUint128.shl(128))
+      expect(feeGrowthGlobal0X128).to.eq('0xc000000000000000000000000000000000000000000000000000000000000000')
+      expect(feeGrowthGlobal1X128).to.eq('0xc000000000000000000000000000000000000000000000000000000000000000')
       await pool.burn(minTick, maxTick, 0)
       const { amount0, amount1 } = await pool.callStatic.collect(
         wallet.address,
@@ -1878,8 +1864,8 @@ describe('UniswapV3Pool', () => {
         MaxUint128,
         MaxUint128
       )
-      expect(amount0).to.eq(MaxUint128)
-      expect(amount1).to.eq(MaxUint128)
+      expect(amount0).to.eq('0xc0000000000000000000000000000000')
+      expect(amount1).to.eq('0xc0000000000000000000000000000000')
     })
 
     it('overflow max uint 128', async () => {
@@ -1893,8 +1879,12 @@ describe('UniswapV3Pool', () => {
         pool.feeGrowthGlobal1X128(),
       ])
       // all 1s in first 128 bits
-      expect(feeGrowthGlobal0X128).to.eq(0)
-      expect(feeGrowthGlobal1X128).to.eq(0)
+      expect(feeGrowthGlobal0X128).to.eq(
+        BigNumber.from('0xc000000000000000000000000000000100000000000000000000000000000000')
+      )
+      expect(feeGrowthGlobal1X128).to.eq(
+        BigNumber.from('0xc000000000000000000000000000000100000000000000000000000000000000')
+      )
       await pool.burn(minTick, maxTick, 0)
       const { amount0, amount1 } = await pool.callStatic.collect(
         wallet.address,
@@ -1904,8 +1894,8 @@ describe('UniswapV3Pool', () => {
         MaxUint128
       )
       // fees burned
-      expect(amount0).to.eq(0)
-      expect(amount1).to.eq(0)
+      expect(amount0).to.eq(BigNumber.from('0xc0000000000000000000000000000001'))
+      expect(amount1).to.eq(BigNumber.from('0xc0000000000000000000000000000001'))
     })
 
     it('overflow max uint 128 after poke burns fees owed to 0', async () => {
@@ -1924,8 +1914,8 @@ describe('UniswapV3Pool', () => {
         MaxUint128
       )
       // fees burned
-      expect(amount0).to.eq(0)
-      expect(amount1).to.eq(0)
+      expect(amount0).to.eq(BigNumber.from('0xc0000000000000000000000000000001'))
+      expect(amount1).to.eq(BigNumber.from('0xc0000000000000000000000000000001'))
     })
 
     it('two positions at the same snapshot', async () => {
@@ -1935,16 +1925,18 @@ describe('UniswapV3Pool', () => {
       await flash(0, 0, wallet.address, MaxUint128, 0)
       await flash(0, 0, wallet.address, MaxUint128, 0)
       const feeGrowthGlobal0X128 = await pool.feeGrowthGlobal0X128()
-      expect(feeGrowthGlobal0X128).to.eq(MaxUint128.shl(128))
+      expect(feeGrowthGlobal0X128).to.eq(
+        BigNumber.from('0xc000000000000000000000000000000000000000000000000000000000000000')
+      )
       await flash(0, 0, wallet.address, 2, 0)
       await pool.burn(minTick, maxTick, 0)
       await pool.connect(other).burn(minTick, maxTick, 0)
       let { amount0 } = await pool.callStatic.collect(wallet.address, minTick, maxTick, MaxUint128, MaxUint128)
-      expect(amount0, 'amount0 of wallet').to.eq(0)
+      expect(amount0, 'amount0 of wallet').to.eq(BigNumber.from('0xc0000000000000000000000000000001'))
       ;({ amount0 } = await pool
         .connect(other)
         .callStatic.collect(other.address, minTick, maxTick, MaxUint128, MaxUint128))
-      expect(amount0, 'amount0 of other').to.eq(0)
+      expect(amount0, 'amount0 of other').to.eq(BigNumber.from('0xc0000000000000000000000000000001'))
     })
 
     it('two positions 1 wei of fees apart overflows exactly once', async () => {
@@ -1955,16 +1947,18 @@ describe('UniswapV3Pool', () => {
       await flash(0, 0, wallet.address, MaxUint128, 0)
       await flash(0, 0, wallet.address, MaxUint128, 0)
       const feeGrowthGlobal0X128 = await pool.feeGrowthGlobal0X128()
-      expect(feeGrowthGlobal0X128).to.eq(0)
+      expect(feeGrowthGlobal0X128).to.eq(
+        BigNumber.from('0xc000000000000000000000000000000100000000000000000000000000000000')
+      )
       await flash(0, 0, wallet.address, 2, 0)
       await pool.burn(minTick, maxTick, 0)
       await pool.connect(other).burn(minTick, maxTick, 0)
       let { amount0 } = await pool.callStatic.collect(wallet.address, minTick, maxTick, MaxUint128, MaxUint128)
-      expect(amount0, 'amount0 of wallet').to.eq(1)
+      expect(amount0, 'amount0 of wallet').to.eq(BigNumber.from('0xc0000000000000000000000000000002'))
       ;({ amount0 } = await pool
         .connect(other)
         .callStatic.collect(other.address, minTick, maxTick, MaxUint128, MaxUint128))
-      expect(amount0, 'amount0 of other').to.eq(0)
+      expect(amount0, 'amount0 of other').to.eq(BigNumber.from('0xc0000000000000000000000000000001'))
     })
   })
 
