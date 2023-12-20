@@ -480,15 +480,15 @@ describe('UniswapV3Pool', () => {
       })
 
       it('protocol fees accumulate as expected during swap', async () => {
-        await pool.setFeeProtocol(6, 6)
+        await pool.setFeeProtocol(4, 4)
 
         await mint(wallet.address, minTick + tickSpacing, maxTick - tickSpacing, expandTo18Decimals(1))
         await swapExact0For1(expandTo18Decimals(1).div(10), wallet.address)
         await swapExact1For0(expandTo18Decimals(1).div(100), wallet.address)
 
         let { token0: token0ProtocolFees, token1: token1ProtocolFees } = await pool.protocolFees()
-        expect(token0ProtocolFees).to.eq('50000000000000')
-        expect(token1ProtocolFees).to.eq('5000000000000')
+        expect(token0ProtocolFees).to.eq('75000000000000')
+        expect(token1ProtocolFees).to.eq('7500000000000')
       })
 
       it('positions when protocol fee is turned on', async () => {
@@ -500,7 +500,7 @@ describe('UniswapV3Pool', () => {
         expect(token0ProtocolFees).to.eq('75000000000000')
         expect(token1ProtocolFees).to.eq('7500000000000')
 
-        await pool.setFeeProtocol(6, 6)
+        await pool.setFeeProtocol(4, 4)
         ;({ token0: token0ProtocolFees, token1: token1ProtocolFees } = await pool.protocolFees())
         expect(token0ProtocolFees).to.eq('75000000000000')
         expect(token1ProtocolFees).to.eq('7500000000000')
