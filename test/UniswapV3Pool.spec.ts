@@ -491,7 +491,7 @@ describe('UniswapV3Pool', () => {
         expect(token1ProtocolFees).to.eq('7500000000000')
       })
 
-      it('positions when protocol fee is turned on', async () => {
+      it('positions are protected when protocol fee is turned on', async () => {
         await mint(wallet.address, minTick + tickSpacing, maxTick - tickSpacing, expandTo18Decimals(1))
         await swapExact0For1(expandTo18Decimals(1).div(10), wallet.address)
         await swapExact1For0(expandTo18Decimals(1).div(100), wallet.address)
