@@ -1,20 +1,20 @@
 {
-  "name": "@uniswap/v3-core",
-  "description": "🦄 Core smart contracts of Uniswap V3",
+  "name": "@_etcswap/v3-core",
+  "description": "Core smart contracts of etcswap V3",
   "license": "BUSL-1.1",
   "publishConfig": {
     "access": "public"
   },
   "version": "1.0.1",
-  "homepage": "https://uniswap.org",
+  "homepage": "https://etcswap.org",
   "keywords": [
-    "uniswap",
+    "etcswap",
     "core",
     "v3"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Uniswap/uniswap-v3-core"
+    "url": "https://github.com/etcswap/v3-core"
   },
   "files": [
     "contracts/interfaces",
